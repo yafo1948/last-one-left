@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f5f3ed" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Last One Left" />
+  <title>Last One Left</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="assets/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="screenFlash" class="screen-flash" aria-hidden="true"></div>
+  <div id="confettiLayer" class="confetti-layer" aria-hidden="true"></div>
+
+  <div class="app-shell">
+    <header class="topbar">
+      <button class="icon-btn" id="homeBtn" aria-label="Home">⌂</button>
+      <div class="brand-wrap">
+        <div class="brand">LAST ONE LEFT</div>
+        <div class="tiny" id="modeLabel">Family quiz</div>
+      </div>
+      <div class="top-actions">
+        <button class="sound-btn" id="soundBtn" aria-label="Toggle sound">🔊</button>
+        <button class="coin-pill" id="statsBtn" aria-label="Stats"><span id="coinCount">0</span> ★</button>
+      </div>
+    </header>
+
+    <main id="gameView" class="view active">
+      <section class="question-block">
+        <div class="category-chip" id="categoryChip">MUSIC</div>
+        <h1>
+          <span id="questionTop">WHO HAS THE</span>
+          <strong id="questionHighlight">MOST #1 HITS</strong>
+          <span id="questionBottom">ON THIS LIST?</span>
+        </h1>
+        <p class="instruction">Eliminate eight. Keep the answer standing.</p>
+      </section>
+
+      <div class="status-row">
+        <div class="lives" id="lives" aria-label="Lives"></div>
+        <div class="turn-badge hidden" id="turnBadge"></div>
+        <div class="timer" id="timer">0:00</div>
+      </div>
+
+      <section class="grid" id="grid" aria-live="polite"></section>
+      <div class="photo-credit">Photos load from Wikipedia/Wikimedia when available.</div>
+
+      <section class="bottom-actions">
+        <button class="action-btn" id="undoBtn" disabled>↶ <span>Undo</span></button>
+        <button class="action-btn primary" id="shuffleBtn">↻ <span>New puzzle</span></button>
+        <button class="action-btn" id="clueBtn">💡 <span>Clue</span></button>
+      </section>
+    </main>
+
+    <main id="homeView" class="view">
+      <section class="hero-panel">
+        <div class="logo-mark">9→1</div>
+        <h2>Last One Left</h2>
+        <p>Knock out eight wrong answers and leave the winner standing. Built for quick family rounds, with real photos, sound, animations, and a growing puzzle library.</p>
+        <div class="library-count"><b id="puzzleCount">0</b> curated + custom puzzles</div>
+      </section>
+      <section class="home-grid">
+        <button class="home-card" data-home-action="daily"><b>Today’s puzzle</b><span>One deterministic puzzle per day</span></button>
+        <button class="home-card" data-home-action="random"><b>Random puzzle</b><span>Play any category, endlessly</span></button>
+        <button class="home-card" data-home-action="family"><b>Pass & Play</b><span>Take turns with the kids on one board</span></button>
+        <button class="home-card ai-card" data-home-action="ai"><b>AI puzzle generator</b><span>Type any topic and make a fresh challenge</span></button>
+        <button class="home-card" data-home-action="editor"><b>Make a puzzle</b><span>Add your own 9 choices and photos</span></button>
+      </section>
+      <section class="category-panel">
+        <h3>Categories</h3>
+        <div id="categoryButtons" class="category-buttons"></div>
+      </section>
+    </main>
+
+    <main id="aiView" class="view editor-view">
+      <div class="editor-header">
+        <button class="text-btn" id="aiBack">← Back</button>
+        <h2>AI puzzle generator</h2>
+        <span></span>
+      </div>
+      <section class="ai-panel">
+        <div class="ai-badge">BETA</div>
+        <h3>Give it a topic</h3>
+        <p class="muted">Examples: “NBA career records”, “Taylor Swift vs pop stars”, “space for a 10-year-old”, “hard world geography”, or “1990s movies”. The generator is instructed to create one objective, uniquely answerable 9-choice puzzle.</p>
+        <label>Topic
+          <textarea id="aiTopic" rows="3" placeholder="e.g. NBA career records"></textarea>
+        </label>
+        <div class="form-row two">
+          <label>Difficulty
+            <select id="aiDifficulty">
+              <option value="easy">Easy</option>
+              <option value="medium" selected>Medium</option>
+              <option value="hard">Hard</option>
+              <option value="expert">Expert</option>
+            </select>
+          </label>
+          <label>Audience
+            <select id="aiAudience">
+              <option value="family" selected>Family</option>
+              <option value="kids 9-13">Kids 9–13</option>
+              <option value="teenagers">Teenagers</option>
+              <option value="adults">Adults</option>
+            </select>
+          </label>
+        </div>
+        <label>AI endpoint
+          <input id="aiEndpoint" type="url" placeholder="https://your-worker.workers.dev" autocomplete="off" />
+        </label>
+        <p class="security-note">The app never asks for or stores an OpenAI API key. Your key belongs only in the small server-side Worker included in this download.</p>
+        <button class="save-btn" id="generateAiBtn" type="button">Generate & play</button>
+        <div id="aiStatus" class="ai-status hidden"></div>
+      </section>
+    </main>
+
+    <main id="editorView" class="view editor-view">
+      <div class="editor-header">
+        <button class="text-btn" id="editorBack">← Back</button>
+        <h2>Create a puzzle</h2>
+        <button class="text-btn" id="exportBtn">Export</button>
+      </div>
+      <form id="puzzleForm" class="editor-form">
+        <div class="form-row two">
+          <label>Category<input name="category" placeholder="Movies" required /></label>
+          <label>Title<input name="title" placeholder="Box Office Giants" required /></label>
+        </div>
+        <label>Top line<input name="questionTop" value="WHO HAS THE" required /></label>
+        <label>Highlighted line<input name="questionHighlight" placeholder="MOST OSCARS" required /></label>
+        <label>Bottom line<input name="questionBottom" value="ON THIS LIST?" required /></label>
+        <label>Answer explanation<textarea name="fact" placeholder="Why the winner is correct…" required></textarea></label>
+
+        <div class="editor-section-head">
+          <h3>Nine choices</h3>
+          <span>Choose exactly one answer. Photos are optional.</span>
+        </div>
+        <div id="choiceEditor"></div>
+        <button class="save-btn" type="submit">Save & play</button>
+      </form>
+      <div class="import-strip">
+        <label class="file-button">Import puzzle pack<input id="importInput" type="file" accept="application/json" hidden /></label>
+        <button class="text-btn danger" id="resetCustomBtn" type="button">Delete my custom puzzles</button>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal-backdrop hidden" id="resultModal">
+    <div class="modal-card">
+      <div class="result-icon" id="resultIcon">🏆</div>
+      <h2 id="resultTitle">You got it!</h2>
+      <p id="resultSub"></p>
+      <div class="answer-reveal" id="answerReveal"></div>
+      <div class="modal-actions">
+        <button class="modal-btn" id="homeFromResult">Home</button>
+        <button class="modal-btn primary" id="nextFromResult">Next puzzle</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop hidden" id="familyModal">
+    <div class="modal-card family-card">
+      <h2>Pass & Play</h2>
+      <p>Add 2–6 player names. Each safe elimination earns that player a point; tapping the real answer costs a life.</p>
+      <div id="playerInputs"></div>
+      <button class="modal-btn primary full" id="startFamilyBtn">Start</button>
+      <button class="modal-btn full" id="cancelFamilyBtn">Cancel</button>
+    </div>
+  </div>
+
+  <div class="toast hidden" id="toast"></div>
+
+  <script src="starter-puzzles.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
